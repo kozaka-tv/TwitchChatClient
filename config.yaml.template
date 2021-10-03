@@ -1,0 +1,9 @@
+#Rename this file to config.yaml and fill the values
+oauthToken:
+channelName:
+
+authToken:
+broadcasterId:
+after:
+before:
+limit:

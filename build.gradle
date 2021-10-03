@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.apache.cassandra:cassandra-all:0.8.1"
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'org.json:json:20210307'
+
+    implementation group: 'com.github.twitch4j', name: 'twitch4j', version: '1.5.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    implementation group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
+    implementation group: 'org.slf4j', name:'slf4j-log4j12', version: '1.7.2'
+
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0'
+
+}
+
+group = 'org.example'
+version = '0.1-SNAPSHOT'
+description = 'TwitchChatReader'
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
