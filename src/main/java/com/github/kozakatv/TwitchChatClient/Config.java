@@ -7,7 +7,7 @@ public class Config {
     private String oauthToken;
     private String channelName;
 
-    private String authToken;
+    private String accessTokenSubscriptions;
     private String broadcasterId;
     private String after;
     private String before;

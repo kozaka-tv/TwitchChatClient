@@ -65,7 +65,7 @@ public class TwitchChatClient {
 
             log.info("[" + event.getChannel().getName() + "] " + event.getUser().getName() + ": " + event.getMessage());
 
-            SubscriptionList subs = twitchClient.getHelix().getSubscriptions(config.getAuthToken(), config.getBroadcasterId(), config.getAfter(), config.getBefore(), config.getLimit()).execute();
+            SubscriptionList subs = twitchClient.getHelix().getSubscriptions(config.getAccessTokenSubscriptions(), config.getBroadcasterId(), config.getAfter(), config.getBefore(), config.getLimit()).execute();
             AtomicReference<String> subBadge = new AtomicReference<>("");
             subs.getSubscriptions().forEach(subscription -> {
                 log.info("Subscriber: " + subscription);
