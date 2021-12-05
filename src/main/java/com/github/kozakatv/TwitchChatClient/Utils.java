@@ -1,19 +1,29 @@
 package com.github.kozakatv.TwitchChatClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import org.json.JSONArray;
 
 import java.io.File;
-import java.io.IOException;
 
 public class Utils {
 
     private static final String CONFIG_FILE_NAME = "config.yaml";
 
+    @SneakyThrows
     public static Config readConfig(ObjectMapper mapper) {
-        try {
-            return mapper.readValue(new File(CONFIG_FILE_NAME), Config.class);
-        } catch (IOException e) {
-            throw new RuntimeException("config file can not be found! configFile: " + CONFIG_FILE_NAME, e);
-        }
+        return mapper.readValue(new File(CONFIG_FILE_NAME), Config.class);
     }
+
+    public static boolean isException(@NonNull String msg, JSONArray exceptions) {
+        for (Object e : exceptions) {
+            if (msg.startsWith(String.valueOf(e))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

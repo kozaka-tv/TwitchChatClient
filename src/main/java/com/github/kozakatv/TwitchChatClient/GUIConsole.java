@@ -47,17 +47,14 @@ final public class GUIConsole {
         scrollPane.setBorder(BorderFactory.createMatteBorder(4, 10, 4, 4, Color.BLACK));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-
         frame.getContentPane().setLayout(new GridLayout());
         frame.getContentPane().add(scrollPane);
         frame.setResizable(true);
         frame.setLocation(200, 100);
 
-
         //Image icon = Toolkit.getDefaultToolkit().getImage(pathToFileOnDisk);
         // frame.setIconImage(icon);
         frame.setIconImage(new ImageIcon("logo.gif").getImage());
-
 
         //Listeners
         console.addKeyListener(new KeyListener() {
@@ -106,7 +103,6 @@ final public class GUIConsole {
             @Override
             public void keyReleased(KeyEvent e) {
             }
-
 
         });
 

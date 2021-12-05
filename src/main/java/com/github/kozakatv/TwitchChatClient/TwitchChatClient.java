@@ -9,15 +9,19 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.helix.domain.Subscription;
 import com.github.twitch4j.helix.domain.SubscriptionList;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.github.kozakatv.TwitchChatClient.Utils.isException;
 import static com.github.kozakatv.TwitchChatClient.Utils.readConfig;
 
 @Slf4j
+@SpringBootApplication
 public class TwitchChatClient {
 
     static EventManager eventManager = new EventManager();
@@ -33,50 +37,74 @@ public class TwitchChatClient {
     }
 
     public static void main(String[] args) {
+
         event();
+
         twitchClient = TwitchClientBuilder.builder()
                 .withEventManager(eventManager)
                 .withDefaultAuthToken(new OAuth2Credential("twitch", config.getOauthToken()))
                 .withEnableHelix(true)
                 .withEnableChat(true)
                 .build();
+
         twitchClient.getChat().joinChannel(config.getChannelName());
+
         Thread guitar = new Thread(() -> {
             GUIConsole.run("KOZAKA Chat Reader", 500, 900, "icon.png");
             GUIConsole.append("Chat Reader Loaded!\n");
         });
+
         guitar.start();
-    }
-
-    public static boolean isException(@NonNull String msg) {
-        for (Object v : exceptions) {
-            if (msg.startsWith(String.valueOf(v)))
-                return true;
-        }
-
-        return false;
     }
 
     public static void event() {
         eventManager.autoDiscovery();
 
         eventManager.onEvent(ChannelMessageEvent.class, event -> {
-            if (isException(event.getMessage())) return;
+            if (isException(event.getMessage(), exceptions)) {
+                return;
+            }
 
             log.info("[" + event.getChannel().getName() + "] " + event.getUser().getName() + ": " + event.getMessage());
 
-            SubscriptionList subs = twitchClient.getHelix().getSubscriptions(config.getAccessTokenSubscriptions(), config.getBroadcasterId(), config.getAfter(), config.getBefore(), config.getLimit()).execute();
-            AtomicReference<String> subBadge = new AtomicReference<>("");
-            subs.getSubscriptions().forEach(subscription -> {
-                log.info("Subscriber: " + subscription);
-                if (subscription.getUserId().equals(event.getUser().getId())) {
-                    subBadge.set("[Tier-" + subTier(subscription) / 1000 + "] ");
-                }
-            });
+            AtomicReference<String> subBadge = getSubBadge(event);
 
-            GUIConsole.append(subBadge + event.getUser().getName() + ": " + event.getMessage() + "\n");
+            if (!event.getMessage().startsWith("!jam") && !event.getMessage().startsWith("pepeJAM")) {
+                GUIConsole.append(subBadge + event.getUser().getName() + ": " + event.getMessage() + "\n");
+            }
 
         });
+    }
+
+    @NotNull
+    private static AtomicReference<String> getSubBadge(ChannelMessageEvent event) {
+
+        SubscriptionList subs = getSubList();
+
+        if (subs == null) {
+            return new AtomicReference<>("");
+        }
+
+        AtomicReference<String> subBadge = new AtomicReference<>("");
+        subs.getSubscriptions().forEach(subscription -> {
+            log.info("Subscriber: " + subscription);
+            if (subscription.getUserId().equals(event.getUser().getId())) {
+                subBadge.set("[T" + subTier(subscription) / 1000 + "] ");
+            }
+        });
+        return subBadge;
+    }
+
+    private static SubscriptionList getSubList() {
+        try {
+            // TODO
+//            return twitchClient.getHelix().getSubscriptions(config.getAccessTokenSubscriptions(), config.getBroadcasterId(), config.getAfter(), config.getBefore(), config.getLimit()).execute();
+//            return twitchClient.getHelix().getSubscriptionsByUser(config.getAccessTokenSubscriptions(), config.getBroadcasterId(), Arrays.asList("kozaka")).execute();
+            return null;
+        } catch (Exception e) {
+            log.error("Problem getting subs! msg: " + e.getMessage(), e);
+        }
+        return null;
     }
 
     private static int subTier(Subscription subscription) {
